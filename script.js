@@ -17,12 +17,7 @@ window.onload = function () {
         canvas.style.border = "1px solid";
         document.body.appendChild(canvas);
         ctx = canvas.getContext('2d');
-        snakee = new snake([
-            [6, 4],
-            [5, 4],
-            [4, 4]
-        ]);
-        console.log(snakee);
+        snakee = new snake([[6, 4], [5, 4], [4, 4]], "right");
         refreshCanvas();
     }
 
@@ -39,8 +34,9 @@ window.onload = function () {
         ctx.fillRect(x, y, blockSize, blockSize);
     }
 
-    function snake(body) {
+    function snake(body, direction) {
         this.body = body;
+        this.direction = direction;
         this.draw = function () {
             ctx.save();
             ctx.fillStyle = "#ff0000";
@@ -51,9 +47,64 @@ window.onload = function () {
         };
         this.advance = function () {
             var nextPosition = this.body[0].slice();
-            nextPosition += 1;
+            switch (this.direction) {
+                case "left":
+                    nextPosition[0] -= 1
+                    break;
+                case "right":
+                    nextPosition[0] += 1
+                    break;
+                case "up":
+                    nextPosition[1] -= 1
+                    break;
+                case "down":
+                    nextPosition[1] += 1
+                    break;
+                default:
+                    throw ("Invalid Direction");
+            }
             this.body.unshift(nextPosition);
             this.body.pop();
-        }
+        };
+        this.setDirection = function (newDirection) {
+            var allowedDirection;
+            switch (this.direction) {
+                case "left":
+                case "right":
+                    allowedDirection = ["up", "down"]
+                    break;
+                case "up":
+                case "down":
+                    allowedDirection = ["left", "right"]
+                    break;
+                default:
+                    throw ("Invalid Direction");
+            }
+            if (allowedDirection.indexOf(newDirection) > -1) {
+                this.direction = newDirection;
+            }
+        };
     }
+
+    document.onkeydown = function handleKeyDown(e) {
+        var key = e.keycode;
+        var newDirection;
+        switch (key) {
+            case 37:
+                newDirection = "left";
+                break;
+            case 38:
+                newDirection = "up";
+                break;
+            case 39:
+                newDirection = "right";
+                break;
+            case 40:
+                newDirection = "down";
+                break;
+            default:
+                return;
+        }
+        snakee.setDirection(newDirection);
+    };
 }
